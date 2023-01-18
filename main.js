@@ -2,17 +2,22 @@ require('dotenv').config()
 const express = require('express')
 const basicAuth = require('express-basic-auth')
 const JSONdb = require('simple-json-db')
-const { google } = require('googleapis')
+const { OAuth2Client } = require('google-auth-library')
+const { calendar } = require('@googleapis/calendar')
 
 const app = express()
 const port = 8080
 const db = new JSONdb(__dirname + '/db.json')
 
-const googleAuthApi = new google.auth.OAuth2(
-    process.env.CLIENT_ID,
-    process.env.CLIENT_SECRET,
-    process.env.REDIRECT_URL,
-)
+function getOAuthClient() {
+    return new OAuth2Client(
+        process.env.CLIENT_ID,
+        process.env.CLIENT_SECRET,
+        process.env.REDIRECT_URL,
+    )
+}
+
+const googleAuthApi = getOAuthClient()
 
 const scopes = [
     'https://www.googleapis.com/auth/calendar'
@@ -37,7 +42,7 @@ app.use((req, res, next) => {
 
 app.get('/', async (req, res) => {
     if (req.user.tokens) {
-        const auth = new google.auth.OAuth2()
+        const auth = getOAuthClient()
         auth.setCredentials(req.user.tokens)
 
         if (Date.now() > req.user.tokens.expiry_date) {
@@ -50,7 +55,7 @@ app.get('/', async (req, res) => {
             })
         }
 
-        const calendarList = await google.calendar({ version: 'v3', auth }).calendarList.list()
+        const calendarList = await calendar({ version: 'v3', auth }).calendarList.list()
 
         res.send(`
             <pre>${JSON.stringify(calendarList.data, null, 2)}</pre>

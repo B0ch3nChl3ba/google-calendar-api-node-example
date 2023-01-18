@@ -10,10 +10,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@googleapis/calendar": "^3.0.0",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "express-basic-auth": "^1.2.1",
-    "googleapis": "^105.0.0",
+    "google-auth-library": "^8.7.0",
     "nodemon": "^2.0.20",
     "simple-json-db": "^2.0.0"
   }
